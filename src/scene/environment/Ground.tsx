@@ -42,7 +42,7 @@ export function Ground() {
       </mesh>
       {quality === "high" && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 8]}>
-          <planeGeometry args={[95, 90]} />
+          <planeGeometry args={[95, 38]} />
           <MeshReflectorMaterial
             resolution={EXPERIENCE.quality.high.reflection}
             blur={[250, 80]}
