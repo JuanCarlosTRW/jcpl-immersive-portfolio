@@ -16,6 +16,7 @@ import { Frame } from "../components/ui/Frame";
 import { Arrow } from "../components/ui/Arrow";
 import { Index } from "../components/ui/Index";
 import { ProjectArchive } from "../components/ui/ProjectArchive";
+import { CinematicBackdrop } from "../components/visual/CinematicBackdrop";
 import { SceneBoundary } from "./SceneBoundary";
 import { supportsWebGL2 } from "../utils/webgl";
 
@@ -126,13 +127,14 @@ function Portfolio() {
           </SceneBoundary>
         )}
       </div>
+      <CinematicBackdrop />
       <div className="cinema-shade" aria-hidden="true" />
       <Frame restart={restart} />
       {phase !== "world" && (
         <main className="threshold" inert={phase !== "portal"}>
           <div className="threshold-copy">
             <p className="eyebrow">
-              <span className="chapter-dash" /> AN INDEPENDENT UNIVERSE
+              <span className="chapter-dash" /> IMMERSIVE PORTFOLIO / 2026
             </p>
             <h1 className="threshold-title">
               THE
@@ -141,9 +143,9 @@ function Portfolio() {
             </h1>
             <div className="threshold-bottom">
               <p>
-                Nothing starts extraordinary.
+                Strategy, design and technology.
                 <br />
-                <span>It becomes.</span>
+                <span>Built as a world you can enter.</span>
               </p>
               <button
                 className="enter-button"
@@ -200,7 +202,7 @@ function Portfolio() {
       )}
       {phase === "entering" && (
         <div className="entry-caption" role="status">
-          LEAVE THE FAMILIAR BEHIND.
+          CROSS THE THRESHOLD.
         </div>
       )}
       <Index visitProjects={visitProjects} />

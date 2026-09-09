@@ -19,7 +19,7 @@ export function Frame({ restart }: { restart: () => void }) {
         <span className="header-title eyebrow">
           THE ASCENT{" "}
           <span className="header-secondary">
-            <span className="header-separator">/</span> PORTFOLIO
+            <span className="header-separator">/</span> IMMERSIVE PORTFOLIO
           </span>
         </span>
         <button

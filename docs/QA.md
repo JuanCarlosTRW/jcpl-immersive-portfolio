@@ -11,6 +11,8 @@ Date: 2026-09-09.
 - No-WebGL fallback, identity reveal, semantic scroll progression, Index → Projects navigation, archive open/close and Escape dismissal.
 - Motion toggle sets its accessible pressed state and allows immediate entry.
 - No remote textures, HDRs or models are required for the initial scene. Font rendering has a system-font fallback.
+- The three cinematic chapters ship as responsive local WebP assets; the largest desktop plate is under 400 KB and every mobile plate is 100 KB or less.
+- Social preview metadata references a dedicated 1200 × 630 image with project-specific title treatment.
 
 ## Environment limitation
 

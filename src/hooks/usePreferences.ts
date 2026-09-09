@@ -10,10 +10,20 @@ export function usePreferences() {
     const pointer = (event: PointerEvent) => {
       runtime.pointerX = (event.clientX / innerWidth - 0.5) * 2;
       runtime.pointerY = (event.clientY / innerHeight - 0.5) * 2;
+      document.documentElement.style.setProperty(
+        "--pointer-shift-x",
+        `${runtime.pointerX * -8}px`,
+      );
+      document.documentElement.style.setProperty(
+        "--pointer-shift-y",
+        `${runtime.pointerY * -5}px`,
+      );
     };
     const leave = () => {
       runtime.pointerX = 0;
       runtime.pointerY = 0;
+      document.documentElement.style.setProperty("--pointer-shift-x", "0px");
+      document.documentElement.style.setProperty("--pointer-shift-y", "0px");
     };
     const previousRestoration = history.scrollRestoration;
     history.scrollRestoration = "manual";
@@ -26,6 +36,8 @@ export function usePreferences() {
       media.removeEventListener("change", changed);
       window.removeEventListener("pointermove", pointer);
       document.removeEventListener("pointerleave", leave);
+      document.documentElement.style.removeProperty("--pointer-shift-x");
+      document.documentElement.style.removeProperty("--pointer-shift-y");
     };
   }, []);
 }

@@ -11,9 +11,9 @@
   background: #060709;
   font-synthesis: none;
   font-weight: 400;
-  --ink: #e9e7e1;
-  --muted: #979d9f;
-  --line: rgba(220, 226, 227, 0.22);
+  --ink: #f0ebe2;
+  --muted: #aaa49b;
+  --line: rgba(238, 224, 198, 0.24);
   --margin: 4.1vw;
   color-scheme: dark;
 }
@@ -84,6 +84,159 @@ em {
   width: 100%;
   height: 100%;
   display: block;
+}
+.cinematic-world {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background: #070707;
+  pointer-events: none;
+}
+.cinematic-plate {
+  position: absolute;
+  inset: -2.5%;
+  margin: 0;
+  overflow: hidden;
+}
+.cinematic-plate img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.82) contrast(1.07) brightness(0.82);
+  transform: translate3d(
+      var(--pointer-shift-x, 0px),
+      var(--pointer-shift-y, 0px),
+      0
+    )
+    scale(1.035);
+  transition: transform 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.cinematic-plate--entrance {
+  opacity: 0.96;
+}
+.cinematic-plate--journey,
+.cinematic-plate--projects {
+  opacity: 0;
+}
+.cinematic-plate--journey img {
+  transform: translate3d(
+      var(--pointer-shift-x, 0px),
+      calc(var(--pointer-shift-y, 0px) + var(--journey-offset, 0px)),
+      0
+    )
+    scale(var(--journey-scale, 1.035));
+}
+.cinematic-plate--projects img {
+  transform: translate3d(
+      var(--pointer-shift-x, 0px),
+      var(--pointer-shift-y, 0px),
+      0
+    )
+    scale(var(--projects-scale, 1.085));
+}
+.cinematic-plate--journey img,
+.cinematic-plate--projects img {
+  filter: saturate(0.8) contrast(1.08) brightness(0.76);
+}
+.cinematic-atmosphere,
+.cinematic-depth-lines,
+.cinematic-grain {
+  position: absolute;
+  inset: 0;
+}
+.cinematic-depth-lines {
+  background:
+    linear-gradient(90deg, transparent 49.94%, rgba(238, 224, 198, 0.09) 50%, transparent 50.06%),
+    linear-gradient(0deg, transparent 49.94%, rgba(238, 224, 198, 0.025) 50%, transparent 50.06%);
+  opacity: 0.34;
+  mask-image: radial-gradient(circle at center, #000, transparent 74%);
+}
+.cinematic-atmosphere {
+  background:
+    radial-gradient(circle at 52% 47%, transparent 0 24%, rgba(3, 4, 5, 0.2) 67%),
+    linear-gradient(180deg, rgba(2, 3, 4, 0.26), transparent 36%, rgba(2, 3, 4, 0.25));
+}
+.cinematic-atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 38% -12% -18%;
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(220, 223, 217, 0.12), transparent 48%),
+    radial-gradient(ellipse at 72% 54%, rgba(220, 223, 217, 0.1), transparent 42%);
+  filter: blur(34px);
+  animation: atmosphere-drift 14s ease-in-out infinite alternate;
+}
+@keyframes atmosphere-drift {
+  from {
+    transform: translate3d(-2%, 1%, 0) scale(1);
+    opacity: 0.5;
+  }
+  to {
+    transform: translate3d(2%, -2%, 0) scale(1.08);
+    opacity: 0.78;
+  }
+}
+.cinematic-grain {
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.72'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+.phase-initializing .cinematic-world {
+  opacity: 0;
+}
+.phase-portal .cinematic-world {
+  animation: world-materialize 2.4s ease-out both;
+}
+.phase-entering .cinematic-plate--entrance {
+  animation: entrance-depart 5.4s cubic-bezier(0.66, 0, 0.25, 1) both;
+}
+.phase-entering .cinematic-plate--journey {
+  animation: journey-arrive 5.4s cubic-bezier(0.66, 0, 0.25, 1) both;
+}
+.phase-world .cinematic-plate--entrance {
+  opacity: 0;
+}
+.phase-world .cinematic-plate--journey {
+  opacity: var(--journey-opacity, 0.96);
+}
+.phase-world .cinematic-plate--projects {
+  opacity: var(--projects-opacity, 0);
+}
+.phase-portal .scene-container,
+.phase-entering .scene-container,
+.phase-world .scene-container {
+  opacity: 0.2;
+}
+@keyframes entrance-depart {
+  0% {
+    opacity: 0.96;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  68% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.19);
+    filter: blur(7px);
+  }
+}
+@keyframes journey-arrive {
+  0%,
+  28% {
+    opacity: 0;
+    transform: scale(1.12);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 0.96;
+    transform: scale(1);
+    filter: blur(0);
+  }
 }
 .cinema-shade {
   position: fixed;
@@ -509,6 +662,18 @@ em {
 }
 .beat-content {
   max-width: 50%;
+  position: relative;
+  padding: 28px 32px 30px;
+  margin-left: -32px;
+  border-left: 1px solid rgba(238, 224, 198, 0.3);
+  background: linear-gradient(
+    90deg,
+    rgba(4, 5, 6, 0.56),
+    rgba(4, 5, 6, 0.18) 62%,
+    transparent
+  );
+  backdrop-filter: blur(3px);
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.8);
 }
 .story-beat .eyebrow {
   font-size: 10px;
@@ -578,6 +743,27 @@ em {
   letter-spacing: 0.08em;
   color: #b3bcc0;
 }
+.chapter-readout {
+  position: fixed;
+  left: var(--margin);
+  bottom: 104px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: rgba(233, 231, 225, 0.7);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  pointer-events: none;
+}
+.chapter-readout::before {
+  content: "";
+  width: 36px;
+  height: 1px;
+  background: rgba(238, 224, 198, 0.44);
+}
+.chapter-readout span {
+  color: #f0dfc7;
+}
 .progress-line {
   height: 104px;
   width: 1px;
@@ -611,17 +797,20 @@ em {
 }
 .modal {
   padding: 0;
-  border: 1px solid #343f46;
-  background: rgba(9, 14, 18, 0.98);
+  border: 1px solid rgba(238, 224, 198, 0.28);
+  background:
+    linear-gradient(135deg, rgba(20, 19, 18, 0.9), rgba(5, 6, 7, 0.92)),
+    rgba(8, 9, 10, 0.88);
   color: var(--ink);
   width: min(700px, calc(100% - 40px));
   max-height: calc(100svh - 40px);
   overflow-y: auto;
-  box-shadow: 0 20px 100px #0007;
+  box-shadow: 0 30px 140px #000a;
+  backdrop-filter: blur(28px) saturate(0.8);
 }
 .modal::backdrop {
-  background: rgba(0, 3, 5, 0.72);
-  backdrop-filter: blur(12px);
+  background: rgba(0, 1, 2, 0.58);
+  backdrop-filter: blur(15px) saturate(0.7);
 }
 .modal-content {
   padding: 32px 45px 42px;
@@ -701,6 +890,12 @@ em {
   padding-bottom: 8px;
   margin: 6px 0 28px;
 }
+.archive-modal {
+  width: min(880px, calc(100% - 40px));
+}
+.archive-modal .modal-content {
+  padding: 42px 58px 54px;
+}
 .archive-modal h2 {
   font-size: clamp(48px, 6vw, 74px);
   letter-spacing: -0.06em;
@@ -719,13 +914,24 @@ em {
   font-size: 14px;
 }
 .case-study-outline {
-  display: flex;
-  gap: 25px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
   margin: 36px 0 45px;
   border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
   padding-top: 22px;
+  padding-bottom: 22px;
   font-size: 11px;
   color: #a1b0b9;
+}
+.case-study-outline span {
+  padding-left: 18px;
+  border-left: 1px solid rgba(238, 224, 198, 0.16);
+}
+.case-study-outline span:first-child {
+  padding-left: 0;
+  border-left: 0;
 }
 .line-link {
   display: flex;
@@ -798,6 +1004,9 @@ em {
 .reduced-motion .threshold-copy,
 .reduced-motion .portal-coordinate {
   opacity: 1;
+}
+.reduced-motion .cinematic-plate img {
+  transform: scale(1.035);
 }
 .reduced-motion.phase-entering .threshold-copy {
   opacity: 0;
@@ -982,6 +1191,13 @@ em {
   }
   .beat-content {
     max-width: 95%;
+    padding: 22px 20px 24px;
+    margin-left: -20px;
+    background: linear-gradient(
+      90deg,
+      rgba(4, 5, 6, 0.64),
+      rgba(4, 5, 6, 0.12)
+    );
   }
   .identity h1 {
     font-size: 24vw;
@@ -1020,6 +1236,14 @@ em {
     font-size: 8px;
     gap: 12px;
   }
+  .chapter-readout {
+    bottom: 86px;
+    font-size: 7px;
+    gap: 9px;
+  }
+  .chapter-readout::before {
+    width: 18px;
+  }
   .progress-line {
     height: 70px;
   }
@@ -1051,6 +1275,9 @@ em {
   .archive-modal h2 {
     font-size: 52px;
   }
+  .archive-modal .modal-content {
+    padding: 25px 25px 34px;
+  }
   .archive-modal p {
     font-size: 14px;
   }
@@ -1080,6 +1307,18 @@ em {
   }
   .header-secondary {
     display: none;
+  }
+  .cinematic-plate {
+    inset: -1.5%;
+  }
+  .cinematic-plate img {
+    object-position: center center;
+  }
+  .cinematic-plate--journey img {
+    object-position: 58% center;
+  }
+  .cinematic-plate--projects img {
+    object-position: 51% center;
   }
 }
 @media (max-height: 680px) and (min-width: 761px) {

@@ -13,6 +13,36 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
   const [chapter, setChapter] = useState(0);
   const reduced = useExperience((s) => s.reducedMotion);
   useEffect(() => {
+    const experience = root.current?.closest<HTMLElement>(".experience");
+    const updateVisualWorld = (progress: number) => {
+      const transition = Math.min(
+        1,
+        Math.max(0, (progress - 0.46) / (0.76 - 0.46)),
+      );
+      const eased = transition * transition * (3 - 2 * transition);
+      root.current?.style.setProperty("--journey-progress", String(progress));
+      experience?.style.setProperty(
+        "--journey-opacity",
+        String((1 - eased) * 0.96),
+      );
+      experience?.style.setProperty(
+        "--projects-opacity",
+        String(eased * 0.96),
+      );
+      experience?.style.setProperty(
+        "--journey-scale",
+        String(1.035 + progress * 0.07),
+      );
+      experience?.style.setProperty(
+        "--projects-scale",
+        String(1.085 - eased * 0.05),
+      );
+      experience?.style.setProperty(
+        "--journey-offset",
+        `${progress * -10}px`,
+      );
+    };
+    updateVisualWorld(0);
     const context = gsap.context(() => {
       gsap.to(runtime, {
         scroll: 1,
@@ -23,11 +53,8 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
           end: "bottom bottom",
           scrub: reduced ? true : EXPERIENCE.timing.scrub,
           onUpdate: (self) => {
-            setChapter(self.progress < 0.28 ? 0 : self.progress < 0.75 ? 1 : 2);
-            root.current?.style.setProperty(
-              "--journey-progress",
-              String(self.progress),
-            );
+            setChapter(self.progress < 0.32 ? 0 : self.progress < 0.72 ? 1 : 2);
+            updateVisualWorld(self.progress);
           },
         },
       });
@@ -49,6 +76,11 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
     return () => {
       context.revert();
       cancelAnimationFrame(refresh);
+      experience?.style.removeProperty("--journey-opacity");
+      experience?.style.removeProperty("--projects-opacity");
+      experience?.style.removeProperty("--journey-scale");
+      experience?.style.removeProperty("--projects-scale");
+      experience?.style.removeProperty("--journey-offset");
     };
   }, [reduced, jumpToProjects]);
   return (
@@ -64,9 +96,9 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
             CARLOS<span className="identity-dot">.</span>
           </h1>
           <p className="identity-disciplines">
-            MARKETING
+            BRAND SYSTEMS
             <br />
-            STRATEGY
+            DIGITAL EXPERIENCES
             <br />
             <span>CREATIVE TECHNOLOGY</span>
           </p>
@@ -79,13 +111,13 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
         <div className="beat-content">
           <p className="eyebrow">THE IDEA IS TO KEEP MOVING.</p>
           <h2 id="progression-title">
-            Every build.
-            <br />A step <em>forward.</em>
+            Strategy becomes
+            <br />an <em>experience.</em>
           </h2>
           <p className="story-description">
-            Curiosity becomes craft.
+            Ideas become systems.
             <br />
-            Craft becomes impact.
+            Systems become worlds.
           </p>
         </div>
       </section>
@@ -112,7 +144,7 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
             className="enter-button"
             onClick={() => useExperience.getState().setProjectOpen(true)}
           >
-            EXPLORE PROJECTS{" "}
+            ENTER THE ARCHIVE{" "}
             <span className="button-circle">
               <Arrow diagonal />
             </span>
@@ -126,6 +158,10 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
         </div>
         <span>03</span>
       </aside>
+      <div className="chapter-readout" aria-hidden="true">
+        <span>0{chapter + 1}</span>
+        <p>{["ARRIVAL", "THE ASCENT", "SELECTED WORK"][chapter]}</p>
+      </div>
     </main>
   );
 }

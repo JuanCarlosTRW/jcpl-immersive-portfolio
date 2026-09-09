@@ -2,7 +2,9 @@
 
 Juan-Carlos's immersive portfolio. A world in progression, built with procedural architecture, restrained light and an editorial HTML interface.
 
-**First vertical slice:** initialization → obsidian portal → camera traversal → identity reveal → scroll journey → Projects destination and archive placeholder.
+**Current experience:** initialization → cinematic obsidian portal → spatial transition → ascending world → Projects destination and archive placeholder.
+
+Three original environment frames now establish one continuous visual world. Responsive WebP variants keep the cinematic detail while limiting transfer cost, and the procedural WebGL layer remains underneath as a spatial foundation. Pointer parallax, atmospheric movement and scroll-driven crossfades connect the three chapters without turning the portfolio into a conventional image carousel.
 
 The supplied GitHub repository was empty when development began. This project is isolated from all other repositories.
 
@@ -127,7 +129,7 @@ See Cloudflare's [Vite deployment guide](https://developers.cloudflare.com/pages
 
 ## Milestone boundary
 
-Implemented: technical foundation, portal vertical slice, first environment, camera choreography, placeholder Projects destination and initial performance safeguards.
+Implemented: technical foundation, portal vertical slice, cinematic environment system, responsive art direction, camera choreography, placeholder Projects destination and initial performance safeguards.
 
 Next: validate and tune the actual WebGL composition on a GPU-enabled browser, then custom assets and the first real case study. Sound, wider-device profiling and final public launch follow those milestones. The project is not presented as visually signed off until the GPU review passes.
 
