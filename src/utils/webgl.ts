@@ -4,9 +4,7 @@ export function supportsWebGL2(): boolean {
     const context = canvas.getContext("webgl2", {
       failIfMajorPerformanceCaveat: false,
     });
-    if (!context) return false;
-    context.getExtension("WEBGL_lose_context")?.loseContext();
-    return true;
+    return Boolean(context);
   } catch {
     return false;
   }

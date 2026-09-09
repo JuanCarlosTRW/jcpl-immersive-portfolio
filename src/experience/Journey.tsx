@@ -98,49 +98,17 @@ const CHAPTER_LABELS = [
   "CLIENTGROWTH",
 ];
 
-const clamp = (value: number) => Math.min(1, Math.max(0, value));
-
 export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
   const root = useRef<HTMLElement>(null);
   const [chapter, setChapter] = useState(0);
   const reduced = useExperience((s) => s.reducedMotion);
 
   useEffect(() => {
-    const experience = root.current?.closest<HTMLElement>(".experience");
-    const updateVisualWorld = (progress: number) => {
-      const ascent = clamp((progress - 0.23) / 0.65);
-      const easedAscent = 1 - Math.pow(1 - ascent, 3);
-      const transition = clamp((progress - 0.88) / 0.07);
-      const easedTransition = transition * transition * (3 - 2 * transition);
-
+    const updateJourneyProgress = (progress: number) => {
       root.current?.style.setProperty("--journey-progress", String(progress));
-      experience?.style.setProperty(
-        "--journey-opacity",
-        String((1 - easedTransition) * 0.96),
-      );
-      experience?.style.setProperty(
-        "--projects-opacity",
-        String(easedTransition * 0.96),
-      );
-      experience?.style.setProperty(
-        "--journey-scale",
-        String(1.035 + easedAscent * 0.52),
-      );
-      experience?.style.setProperty(
-        "--journey-offset-x",
-        `${easedAscent * -8.5}vw`,
-      );
-      experience?.style.setProperty(
-        "--journey-offset-y",
-        `${easedAscent * 7.5}vh`,
-      );
-      experience?.style.setProperty(
-        "--projects-scale",
-        String(1.1 - easedTransition * 0.065),
-      );
     };
 
-    updateVisualWorld(0);
+    updateJourneyProgress(0);
     const context = gsap.context(() => {
       gsap.to(runtime, {
         scroll: 1,
@@ -149,7 +117,7 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
           trigger: root.current,
           start: "top top",
           end: "bottom bottom",
-          scrub: reduced ? true : EXPERIENCE.timing.scrub,
+          scrub: true,
           onUpdate: (self) => {
             const progress = self.progress;
             setChapter(
@@ -167,7 +135,7 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
                           ? 5
                           : 6,
             );
-            updateVisualWorld(progress);
+            updateJourneyProgress(progress);
           },
         },
       });
@@ -220,12 +188,6 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
     return () => {
       context.revert();
       cancelAnimationFrame(refresh);
-      experience?.style.removeProperty("--journey-opacity");
-      experience?.style.removeProperty("--projects-opacity");
-      experience?.style.removeProperty("--journey-scale");
-      experience?.style.removeProperty("--journey-offset-x");
-      experience?.style.removeProperty("--journey-offset-y");
-      experience?.style.removeProperty("--projects-scale");
     };
   }, [reduced, jumpToProjects]);
 

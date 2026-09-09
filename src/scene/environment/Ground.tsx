@@ -19,7 +19,7 @@ void main() {
   float seam = exp(-abs(abs(p.x) - 3.8) * 110.0) * (1.0 - smoothstep(-45.0, 22.0, p.y));
   vec3 col = vec3(0.024, 0.027, 0.029) + stone + trail * 0.04;
   col *= 1.0 - lines * 0.45;
-  col += vec3(0.48, 0.52, 0.53) * seam * 0.65;
+  col += vec3(0.32, 0.25, 0.15) * seam * 0.42;
   float haze = smoothstep(25.0, 115.0, length(p));
   col = mix(col, vec3(0.03, 0.038, 0.044), haze);
   gl_FragColor = vec4(col, 1.0);
@@ -46,9 +46,9 @@ export function Ground() {
           <MeshReflectorMaterial
             resolution={EXPERIENCE.quality.high.reflection}
             blur={[250, 80]}
-            mixBlur={0.85}
-            mixStrength={1.65}
-            mirror={0.65}
+            mixBlur={0.7}
+            mixStrength={0.5}
+            mirror={0.32}
             depthScale={0.18}
             minDepthThreshold={0.6}
             maxDepthThreshold={1.4}
@@ -56,7 +56,7 @@ export function Ground() {
             metalness={0.72}
             roughness={0.65}
             transparent
-            opacity={0.65}
+            opacity={0.42}
           />
         </mesh>
       )}

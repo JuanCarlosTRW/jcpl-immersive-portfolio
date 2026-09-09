@@ -36,7 +36,7 @@ export function Dust() {
     const seeds = new Float32Array(count);
     for (let i = 0; i < count; i++) {
       positions.set(
-        [(random() - 0.5) * 70, random() * 22, 22 - random() * 125],
+        [(random() - 0.5) * 74, random() * 34, 22 - random() * 210],
         i * 3,
       );
       seeds[i] = random();

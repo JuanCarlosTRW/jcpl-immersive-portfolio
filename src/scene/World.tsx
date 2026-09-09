@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { ACESFilmicToneMapping } from "three";
@@ -13,10 +13,6 @@ import { Lighting } from "./environment/Lighting";
 import { PerformanceGuard } from "./PerformanceGuard";
 import { Atmosphere } from "./environment/Atmosphere";
 
-const ProjectDestination = lazy(
-  () => import("./environment/ProjectDestination"),
-);
-
 function Ready({ onReady }: { onReady: () => void }) {
   const frames = useRef(0);
   const invalidate = useThree((s) => s.invalidate);
@@ -30,8 +26,6 @@ function Ready({ onReady }: { onReady: () => void }) {
 
 export default function World({ onReady }: { onReady: () => void }) {
   const quality = useExperience((s) => s.quality);
-  const reducedMotion = useExperience((s) => s.reducedMotion);
-  const phase = useExperience((s) => s.phase);
   const modalOpen = useExperience((s) => s.indexOpen || s.projectOpen);
   const [visible, setVisible] = useState(!document.hidden);
   useEffect(() => {
@@ -42,7 +36,7 @@ export default function World({ onReady }: { onReady: () => void }) {
   return (
     <Canvas
       dpr={[1, EXPERIENCE.quality[quality].dpr]}
-      frameloop={!visible || reducedMotion || modalOpen ? "demand" : "always"}
+      frameloop={!visible || modalOpen ? "demand" : "always"}
       camera={{
         position: EXPERIENCE.camera.start,
         fov: EXPERIENCE.camera.fov,
@@ -54,27 +48,22 @@ export default function World({ onReady }: { onReady: () => void }) {
         alpha: false,
         powerPreference: "high-performance",
         toneMapping: ACESFilmicToneMapping,
-        toneMappingExposure: 1.2,
+        toneMappingExposure: 1,
       }}
       fallback={null}
       onCreated={({ gl }) => {
         gl.info.autoReset = false;
       }}
-      aria-label="A monumental obsidian portal leading to an architectural world"
+      aria-label="A monumental obsidian route climbing through stairs, bridges and architectural stations"
     >
       <color attach="background" args={[EXPERIENCE.colors.void]} />
-      <fogExp2 attach="fog" args={[EXPERIENCE.colors.fog, 0.014]} />
+      <fogExp2 attach="fog" args={[EXPERIENCE.colors.fog, 0.0085]} />
       <Atmosphere />
       <Lighting />
       <Portal />
       <Architecture />
       <Ground />
       <Dust />
-      {phase !== "initializing" && (
-        <Suspense fallback={null}>
-          <ProjectDestination />
-        </Suspense>
-      )}
       <CameraRig />
       <PerformanceGuard />
       {EXPERIENCE.quality[quality].bloom && (

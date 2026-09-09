@@ -2,8 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { DoubleSide, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from "three";
 import { archFrame, apertureGeometry } from "../src/scene/Portal/geometry.ts";
-import { createCameraPaths } from "../src/experience/cameraPaths.ts";
+import {
+  createCameraPaths,
+  mapScrollToRailProgress,
+} from "../src/experience/cameraPaths.ts";
 import { EXPERIENCE } from "../src/experience/config.ts";
+import { routeHeightAt } from "../src/experience/route.ts";
 
 test("the arch contains stone at its sides and crown, with an unobstructed opening", () => {
   const geometry = archFrame(3.05, 0.52, 0.48);
@@ -65,3 +69,45 @@ for (const mobile of [false, true]) {
     );
   });
 }
+
+test("the scroll rail is reversible, monotonic and pauses at narrative stations", () => {
+  let previous = mapScrollToRailProgress(0);
+  assert.equal(previous, 0);
+  for (let i = 1; i <= 1000; i++) {
+    const next = mapScrollToRailProgress(i / 1000);
+    assert.ok(next >= previous, "camera never reverses while scrolling forward");
+    previous = next;
+  }
+  assert.equal(mapScrollToRailProgress(1), 1);
+  assert.ok(
+    mapScrollToRailProgress(0.38) - mapScrollToRailProgress(0.29) < 0.02,
+    "the first case-study station holds the camera",
+  );
+  assert.ok(
+    mapScrollToRailProgress(0.87) - mapScrollToRailProgress(0.8) < 0.03,
+    "the dream-state station holds the camera",
+  );
+  assert.equal(mapScrollToRailProgress(-1), 0);
+  assert.equal(mapScrollToRailProgress(2), 1);
+});
+
+test("the world camera travels deeply forward and climbs the full ascent", () => {
+  const { world } = createCameraPaths(false);
+  const start = world.getPointAt(0);
+  const finish = world.getPointAt(1);
+  assert.ok(finish.z < start.z - 125, "route has real forward depth");
+  assert.ok(finish.y > start.y + 14, "route gains real elevation");
+  let previous = start;
+  for (let i = 1; i <= 500; i++) {
+    const next = world.getPointAt(i / 500);
+    assert.ok(next.z <= previous.z + 0.08, "spline keeps advancing through space");
+    assert.ok(next.y > routeHeightAt(next.z) + 1.1, "camera clears every landing");
+    previous = next;
+  }
+});
+
+test("the architectural route rises through three flights", () => {
+  const samples = [-40, -60, -78, -98, -119, -141, -158].map(routeHeightAt);
+  for (let i = 1; i < samples.length; i++) assert.ok(samples[i] >= samples[i - 1]);
+  assert.ok(samples.at(-1) - samples[0] > 14);
+});

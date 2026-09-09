@@ -1,10 +1,13 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { MathUtils, PerspectiveCamera, Vector3 } from "three";
 import { EXPERIENCE } from "../experience/config";
 import { runtime } from "../experience/runtime";
 import { useExperience } from "../stores/experience";
-import { createCameraPaths } from "../experience/cameraPaths";
+import {
+  createCameraPaths,
+  mapScrollToRailProgress,
+} from "../experience/cameraPaths";
 
 const { camera: config } = EXPERIENCE;
 
@@ -16,29 +19,45 @@ export function CameraRig() {
       point: new Vector3(),
       aim: new Vector3(),
       pointer: new Vector3(),
+      drift: new Vector3(),
+      smoothAim: new Vector3(),
     }),
     [],
   );
   const paths = useMemo(() => createCameraPaths(mobile), [mobile]);
-  useFrame((_, delta) => {
+  const renderedProgress = useRef(0);
+  const aimReady = useRef(false);
+  useFrame((state, delta) => {
     const { phase, reducedMotion } = useExperience.getState();
     if (phase === "world") {
-      const progress = reducedMotion ? 0 : runtime.scroll;
-      paths.world.getPoint(progress, vectors.point);
-      paths.worldAim.getPoint(progress, vectors.aim);
-      // A portrait camera gives the destination breathing room.
-      if (mobile && !reducedMotion) {
-        vectors.point.z += runtime.scroll * config.mobileProjectPullback;
-        vectors.point.x += runtime.scroll * config.mobileProjectOffset;
-        vectors.aim.x += runtime.scroll * config.mobileProjectAimOffset;
+      const targetProgress = mapScrollToRailProgress(runtime.scroll);
+      renderedProgress.current = MathUtils.damp(
+        renderedProgress.current,
+        targetProgress,
+        reducedMotion ? 12 : 5.8,
+        delta,
+      );
+      runtime.camera = renderedProgress.current;
+      paths.world.getPointAt(renderedProgress.current, vectors.point);
+      paths.worldAim.getPointAt(renderedProgress.current, vectors.aim);
+      if (mobile) {
+        vectors.point.z += renderedProgress.current * config.mobileProjectPullback;
+        vectors.point.x += renderedProgress.current * config.mobileProjectOffset;
+        vectors.aim.x += renderedProgress.current * config.mobileProjectAimOffset;
       }
     } else {
       paths.entry.getPoint(runtime.entry, vectors.point);
       paths.entryAim.getPoint(runtime.entry, vectors.aim);
+      renderedProgress.current = 0;
+      runtime.camera = 0;
     }
     const pointerAmount =
-      !reducedMotion && !mobile && phase === "portal"
-        ? config.pointerTravel
+      !reducedMotion && !mobile
+        ? phase === "portal"
+          ? config.pointerTravel
+          : phase === "world"
+            ? 0.075
+            : 0
         : 0;
     vectors.pointer.x = MathUtils.damp(
       vectors.pointer.x,
@@ -52,8 +71,27 @@ export function CameraRig() {
       2.5,
       delta,
     );
-    camera.position.copy(vectors.point).add(vectors.pointer);
-    camera.lookAt(vectors.aim);
+    const worldMotion = phase === "world" && !reducedMotion;
+    const elapsed = state.clock.elapsedTime;
+    vectors.drift.set(
+      worldMotion ? Math.sin(elapsed * 0.33) * 0.018 : 0,
+      worldMotion ? Math.sin(elapsed * 0.52) * 0.012 : 0,
+      0,
+    );
+    camera.position
+      .copy(vectors.point)
+      .add(vectors.pointer)
+      .add(vectors.drift);
+    if (!aimReady.current) {
+      vectors.smoothAim.copy(vectors.aim);
+      aimReady.current = true;
+    } else {
+      vectors.smoothAim.lerp(
+        vectors.aim,
+        1 - Math.exp(-(reducedMotion ? 18 : 8.5) * delta),
+      );
+    }
+    camera.lookAt(vectors.smoothAim);
     const lens = camera as PerspectiveCamera;
     const fov =
       config.fov +
