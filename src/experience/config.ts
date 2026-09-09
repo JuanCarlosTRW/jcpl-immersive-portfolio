@@ -58,9 +58,9 @@ export const EXPERIENCE = {
 
 export type Quality = keyof typeof EXPERIENCE.quality;
 
-// Future destinations are data, not mounted environments. Only Projects ships in this slice.
+// Future destinations are data, not mounted environments. ClientGrowth is the first case study.
 export const DESTINATIONS = [
-  { id: "projects", label: "Projects", number: "01", available: true },
+  { id: "projects", label: "ClientGrowth", number: "01", available: true },
   { id: "about", label: "About", number: "02", available: false },
   { id: "expertise", label: "Expertise", number: "03", available: false },
   { id: "experiments", label: "Experiments", number: "04", available: false },

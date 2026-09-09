@@ -116,7 +116,7 @@ function Portfolio() {
           useExperience.getState().setPhase("world");
         }}
       >
-        Skip to projects
+        Skip to the ClientGrowth case study
       </a>
       <div className="scene-container" aria-hidden="true">
         {graphicsChecked && !failed && (

@@ -123,11 +123,12 @@ em {
 }
 .cinematic-plate--journey img {
   transform: translate3d(
-      var(--pointer-shift-x, 0px),
-      calc(var(--pointer-shift-y, 0px) + var(--journey-offset, 0px)),
+      calc(var(--pointer-shift-x, 0px) + var(--journey-offset-x, 0px)),
+      calc(var(--pointer-shift-y, 0px) + var(--journey-offset-y, 0px)),
       0
     )
     scale(var(--journey-scale, 1.035));
+  transform-origin: 54% 42%;
 }
 .cinematic-plate--projects img {
   transform: translate3d(
@@ -710,11 +711,126 @@ em {
 .identity-disciplines > span {
   color: #a5b1b7;
 }
-.progression h2 {
+.progression h2,
+.case-intro h2,
+.case-stage h2 {
   font-size: clamp(46px, 5.2vw, 82px);
   font-weight: 400;
   line-height: 1.08;
   letter-spacing: -0.05em;
+}
+.case-intro {
+  min-height: 118svh;
+}
+.case-intro .beat-content {
+  max-width: 58%;
+}
+.case-ascent {
+  position: relative;
+}
+.case-stage {
+  min-height: 154svh;
+  display: block;
+  padding: 0 var(--margin);
+}
+.case-stage-pin {
+  position: sticky;
+  top: 0;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+}
+.case-stage .beat-content {
+  width: min(700px, 51%);
+  max-width: none;
+  padding: 31px 34px 34px;
+  background:
+    linear-gradient(
+      102deg,
+      rgba(3, 4, 5, 0.76),
+      rgba(4, 5, 6, 0.36) 68%,
+      transparent
+    );
+  border-left-color: rgba(238, 224, 198, 0.55);
+  backdrop-filter: blur(9px) saturate(0.75);
+}
+.case-stage--2 .case-stage-pin,
+.case-stage--4 .case-stage-pin {
+  justify-content: flex-end;
+}
+.case-stage--2 .beat-content,
+.case-stage--4 .beat-content {
+  margin-left: 0;
+  margin-right: 68px;
+  border-left: 0;
+  border-right: 1px solid rgba(238, 224, 198, 0.55);
+  background:
+    linear-gradient(
+      258deg,
+      rgba(3, 4, 5, 0.76),
+      rgba(4, 5, 6, 0.36) 68%,
+      transparent
+    );
+  text-align: right;
+}
+.case-stage-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+.case-stage-heading .eyebrow {
+  margin-bottom: 30px;
+}
+.case-stage-number {
+  color: rgba(239, 224, 199, 0.78);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+.case-stage h2 {
+  font-size: clamp(44px, 5vw, 78px);
+}
+.case-stage .story-description {
+  color: #c1c8c9;
+  max-width: 610px;
+}
+.case-stage--2 .story-description,
+.case-stage--4 .story-description {
+  margin-left: auto;
+}
+.case-stage-details {
+  display: flex;
+  gap: 0;
+  margin-top: 30px;
+  border-top: 1px solid rgba(238, 224, 198, 0.22);
+  padding-top: 17px;
+}
+.case-stage-details span {
+  flex: 1;
+  padding: 0 14px;
+  border-left: 1px solid rgba(238, 224, 198, 0.16);
+  color: #c5b493;
+  font-size: 8px;
+  line-height: 1.5;
+  letter-spacing: 0.14em;
+}
+.case-stage-details span:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.case-stage--2 .case-stage-details span:first-child,
+.case-stage--4 .case-stage-details span:first-child {
+  padding-left: 14px;
+}
+.case-stage--2 .case-stage-details span:last-child,
+.case-stage--4 .case-stage-details span:last-child {
+  padding-right: 0;
+}
+.project-client {
+  color: #d0b787;
+  font-size: clamp(14px, 1.5vw, 22px);
+  letter-spacing: 0.18em;
+  margin-bottom: 15px;
 }
 .story-description {
   font-size: 14px;
@@ -742,6 +858,31 @@ em {
   font-size: 10px;
   letter-spacing: 0.08em;
   color: #b3bcc0;
+}
+.case-route {
+  position: fixed;
+  right: calc(var(--margin) + 30px);
+  top: 48%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  pointer-events: none;
+}
+.case-route span {
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(238, 224, 198, 0.58);
+  transform: rotate(45deg);
+  transition:
+    background 0.45s ease,
+    box-shadow 0.45s ease,
+    transform 0.45s ease;
+}
+.case-route span.is-reached {
+  background: #ecd5aa;
+  box-shadow: 0 0 18px rgba(236, 213, 170, 0.45);
+  transform: rotate(45deg) scale(1.28);
 }
 .chapter-readout {
   position: fixed;
@@ -903,35 +1044,77 @@ em {
   line-height: 1.02;
   margin-bottom: 25px;
 }
+.archive-client {
+  color: #d0b787;
+  font-size: 11px !important;
+  letter-spacing: 0.2em;
+  margin-bottom: 18px;
+}
 .archive-modal p {
   font-size: 16px;
   line-height: 1.65;
   max-width: 420px;
 }
-.archive-modal p.archive-description {
-  margin-top: 20px;
-  color: #9eabb3;
-  font-size: 14px;
+.archive-modal p.archive-lead {
+  color: #bdc5c8;
+  max-width: 600px;
 }
-.case-study-outline {
+.case-study-summary {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  margin: 36px 0 45px;
+  grid-template-columns: repeat(2, 1fr);
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  padding-top: 22px;
-  padding-bottom: 22px;
-  font-size: 11px;
-  color: #a1b0b9;
+  margin-top: 36px;
 }
-.case-study-outline span {
-  padding-left: 18px;
+.case-study-summary section {
+  padding: 24px 25px 27px 0;
+}
+.case-study-summary section + section {
+  border-left: 1px solid var(--line);
+  padding-left: 25px;
+}
+.case-study-summary span,
+.case-study-layers > section > span {
+  color: #c7af82;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+}
+.case-study-summary p {
+  color: #aab5ba;
+  font-size: 12px;
+  line-height: 1.65;
+  margin-top: 10px;
+}
+.case-study-layers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 30px 0 34px;
+  border-bottom: 1px solid var(--line);
+}
+.case-study-layers section {
+  padding: 0 18px 25px;
   border-left: 1px solid rgba(238, 224, 198, 0.16);
 }
-.case-study-outline span:first-child {
+.case-study-layers section:first-child {
   padding-left: 0;
   border-left: 0;
+}
+.case-study-layers h3 {
+  margin: 13px 0 9px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.case-study-layers p {
+  color: #8f9ca2;
+  font-size: 10px;
+  line-height: 1.65;
+}
+.archive-modal p.archive-note {
+  max-width: none;
+  margin-bottom: 22px;
+  color: #78858b;
+  font-size: 9px;
+  letter-spacing: 0.06em;
 }
 .line-link {
   display: flex;
@@ -1214,8 +1397,76 @@ em {
   .story-beat .eyebrow {
     font-size: 8px;
   }
-  .progression h2 {
+  .progression h2,
+  .case-intro h2,
+  .case-stage h2 {
     font-size: 12vw;
+  }
+  .case-intro {
+    min-height: 115svh;
+  }
+  .case-intro .beat-content {
+    max-width: 95%;
+  }
+  .case-stage {
+    min-height: 148svh;
+    padding: 0 var(--margin);
+  }
+  .case-stage-pin {
+    min-height: 100svh;
+    align-items: flex-end;
+    padding-bottom: 120px;
+  }
+  .case-stage .beat-content,
+  .case-stage--2 .beat-content,
+  .case-stage--4 .beat-content {
+    width: 100%;
+    max-width: 100%;
+    margin-left: -20px;
+    margin-right: 0;
+    padding: 23px 20px 25px;
+    border-right: 0;
+    border-left: 1px solid rgba(238, 224, 198, 0.5);
+    text-align: left;
+    background: linear-gradient(
+      90deg,
+      rgba(3, 4, 5, 0.78),
+      rgba(4, 5, 6, 0.27)
+    );
+  }
+  .case-stage h2 {
+    font-size: 11.5vw;
+  }
+  .case-stage--2 .story-description,
+  .case-stage--4 .story-description {
+    margin-left: 0;
+  }
+  .case-stage-details {
+    flex-wrap: wrap;
+    gap: 10px 0;
+    margin-top: 22px;
+  }
+  .case-stage-details span {
+    flex-basis: 50%;
+    padding-left: 10px;
+    font-size: 7px;
+  }
+  .case-stage-details span:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .case-stage--2 .case-stage-details span:first-child,
+  .case-stage--4 .case-stage-details span:first-child {
+    padding-left: 0;
+  }
+  .case-route {
+    right: calc(var(--margin) + 21px);
+    top: 30%;
+    gap: 12px;
+  }
+  .case-route span {
+    width: 6px;
+    height: 6px;
   }
   .story-description {
     font-size: 12px;
@@ -1249,6 +1500,27 @@ em {
   }
   .modal-content {
     padding: 22px 25px 30px;
+  }
+  .archive-modal .modal-content {
+    padding: 28px 25px 34px;
+  }
+  .case-study-summary,
+  .case-study-layers {
+    grid-template-columns: 1fr;
+  }
+  .case-study-summary section,
+  .case-study-summary section + section {
+    padding: 20px 0;
+    border-left: 0;
+  }
+  .case-study-summary section + section {
+    border-top: 1px solid var(--line);
+  }
+  .case-study-layers section,
+  .case-study-layers section:first-child {
+    padding: 16px 0;
+    border-left: 0;
+    border-top: 1px solid rgba(238, 224, 198, 0.16);
   }
   .modal-top {
     margin-bottom: 30px;
