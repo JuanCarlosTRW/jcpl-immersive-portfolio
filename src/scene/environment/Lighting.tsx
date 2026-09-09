@@ -76,21 +76,21 @@ export function Lighting() {
       <Environment resolution={128} frames={1}>
         <Lightformer
           form="rect"
-          intensity={1.1}
+          intensity={0.8}
           position={[-10, 12, 4]}
           scale={[6, 18, 1]}
           rotation={[0, Math.PI / 3, 0]}
         />
         <Lightformer
           form="rect"
-          intensity={0.75}
+          intensity={0.55}
           position={[9, 9, 0]}
           scale={[2, 20, 1]}
           rotation={[0, -Math.PI / 3, 0]}
         />
         <Lightformer
           form="rect"
-          intensity={0.35}
+          intensity={0.25}
           position={[0, 20, -20]}
           scale={[35, 20, 1]}
           rotation={[Math.PI / 2, 0, 0]}

@@ -6,7 +6,7 @@ export function useStoneMaterial(color = "#25282b", metalness = 0.72) {
   return useMemo(() => {
     const material = new MeshStandardMaterial({
       color,
-      roughness: 0.38,
+      roughness: 0.62,
       metalness,
     });
     material.onBeforeCompile = (shader) => {

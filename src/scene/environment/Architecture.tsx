@@ -161,8 +161,8 @@ export function Architecture() {
   const distant = useRef<InstancedMesh>(null);
   const rocks = useRef<InstancedMesh>(null);
   const quality = useExperience((state) => state.quality);
-  const stone = useStoneMaterial("#202328", 0.38);
-  const darkStone = useStoneMaterial("#15171a", 0.24);
+  const stone = useStoneMaterial("#202328", 0.26);
+  const darkStone = useStoneMaterial("#131518", 0.12);
   const boxGeometry = useMemo(() => new BoxGeometry(1, 1, 1), []);
   const rockGeometry = useMemo(() => new DodecahedronGeometry(1, 0), []);
   const glow = useMemo(
@@ -297,7 +297,7 @@ export function Architecture() {
       <Slab
         position={[0, 0.15, -31]}
         size={[8.4, 0.38, 28]}
-        material={stone}
+        material={darkStone}
         glow={glow}
         rails
       />
