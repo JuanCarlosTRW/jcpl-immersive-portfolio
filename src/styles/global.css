@@ -782,7 +782,7 @@ em {
   text-align: right;
 }
 .case-stage--4 .beat-content {
-  margin-top: -9svh;
+  margin-top: -18svh;
 }
 .case-stage--2 .beat-content::before,
 .case-stage--4 .beat-content::before {
