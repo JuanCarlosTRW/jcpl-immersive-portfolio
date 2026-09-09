@@ -5,95 +5,81 @@ import { DirectionalLight, MathUtils, PointLight } from "three";
 import { runtime } from "../../experience/runtime";
 
 export function Lighting() {
-  const worldLight = useRef<DirectionalLight>(null);
-  const systemLight = useRef<PointLight>(null);
-  const dreamLight = useRef<PointLight>(null);
-  useFrame(() => {
-    if (worldLight.current) {
-      worldLight.current.intensity =
-        0.4 + runtime.entry * 0.78 + runtime.camera * 0.68;
-      worldLight.current.position.z = -42 - runtime.camera * 106;
-      worldLight.current.position.y = 10 + runtime.camera * 17;
+  const key = useRef<DirectionalLight>(null);
+  const traveler = useRef<PointLight>(null);
+  const arrival = useRef<PointLight>(null);
+
+  useFrame(({ camera }) => {
+    if (key.current) {
+      key.current.intensity = 2 + runtime.camera * 1.2;
+      key.current.position.set(
+        -11 + runtime.camera * 8,
+        22 + runtime.camera * 15,
+        -34 - runtime.camera * 118,
+      );
     }
-    if (systemLight.current)
-      systemLight.current.intensity =
-        8 + MathUtils.smoothstep(runtime.camera, 0.48, 0.72) * 42;
-    if (dreamLight.current)
-      dreamLight.current.intensity =
-        5 + MathUtils.smoothstep(runtime.camera, 0.72, 0.96) * 72;
+    if (arrival.current) {
+      arrival.current.intensity =
+        MathUtils.smoothstep(runtime.camera, 0.82, 1) * 54;
+    }
+    if (traveler.current) {
+      traveler.current.position.set(
+        camera.position.x - 3.8,
+        camera.position.y + 4.5,
+        camera.position.z + 3,
+      );
+    }
   });
+
   return (
     <>
-      <ambientLight intensity={0.18} color="#9ba7b2" />
-      <hemisphereLight args={["#c9d1d6", "#171b20", 0.48]} />
+      <hemisphereLight args={["#b8c0c5", "#090b0d", 0.28]} />
       <directionalLight
-        position={[-10, 16, 8]}
-        intensity={1.8}
-        color="#e6e2d9"
-      />
-      <directionalLight
-        position={[8, 11, -8]}
-        intensity={1.55}
-        color="#b8c9d7"
+        ref={key}
+        position={[-11, 22, -34]}
+        intensity={2}
+        color="#e8eae8"
       />
       <directionalLight
-        ref={worldLight}
-        position={[6, 18, -65]}
-        color="#c8d8df"
+        position={[13, 9, 10]}
+        intensity={0.3}
+        color="#9ca9b1"
       />
       <pointLight
-        position={[-3.8, 0.7, 3]}
-        intensity={16}
-        distance={13}
-        color="#fff0da"
+        ref={traveler}
+        intensity={65}
+        distance={34}
+        decay={2}
+        color="#d7c1a2"
       />
       <pointLight
-        position={[4.1, 0.8, 2.6]}
-        intensity={20}
-        distance={15}
-        color="#e9e9e2"
-      />
-      <pointLight
-        position={[7, 8, -62]}
-        intensity={36}
-        distance={25}
-        color="#b5cbd7"
-      />
-      <pointLight
-        ref={systemLight}
-        position={[-1, 14, -114]}
-        intensity={8}
-        distance={38}
-        color="#d6c39d"
-      />
-      <pointLight
-        ref={dreamLight}
-        position={[0, 25, -160]}
-        intensity={5}
-        distance={55}
-        color="#f1d6a0"
+        ref={arrival}
+        position={[0, 28, -174]}
+        intensity={0}
+        distance={62}
+        color="#f3e5d0"
       />
       <Environment resolution={128} frames={1}>
         <Lightformer
           form="rect"
-          intensity={0.8}
-          position={[-10, 12, 4]}
-          scale={[6, 18, 1]}
+          intensity={0.62}
+          position={[-12, 18, -16]}
+          scale={[5, 24, 1]}
           rotation={[0, Math.PI / 3, 0]}
         />
         <Lightformer
           form="rect"
-          intensity={0.55}
-          position={[9, 9, 0]}
-          scale={[2, 20, 1]}
+          intensity={0.36}
+          position={[11, 18, -82]}
+          scale={[3, 28, 1]}
           rotation={[0, -Math.PI / 3, 0]}
         />
         <Lightformer
           form="rect"
-          intensity={0.25}
-          position={[0, 20, -20]}
-          scale={[35, 20, 1]}
-          rotation={[Math.PI / 2, 0, 0]}
+          intensity={0.24}
+          position={[0, 30, -165]}
+          scale={[20, 34, 1]}
+          rotation={[0, 0, 0]}
         />
       </Environment>
     </>

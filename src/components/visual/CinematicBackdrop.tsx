@@ -1,4 +1,12 @@
 export function CinematicBackdrop() {
+  const stages = [
+    "ascent-stage-01.webp",
+    "ascent-stage-02.webp",
+    "ascent-stage-03.webp",
+    "ascent-stage-04.webp",
+    "ascent-stage-05.webp",
+  ];
+
   return (
     <div className="cinematic-world" aria-hidden="true">
       <picture className="cinematic-plate cinematic-plate--entrance">
@@ -25,18 +33,20 @@ export function CinematicBackdrop() {
           loading="eager"
         />
       </picture>
-      <picture className="cinematic-plate cinematic-plate--projects">
-        <source
-          media="(max-width: 760px)"
-          srcSet="/images/ascent-projects-mobile.webp"
-        />
-        <img
-          src="/images/ascent-projects.webp"
-          alt=""
-          decoding="async"
-          loading="lazy"
-        />
-      </picture>
+      {stages.map((stage, index) => (
+        <picture
+          className={`cinematic-plate cinematic-stage cinematic-stage--${index + 1}`}
+          key={stage}
+        >
+          <img
+            src={`/images/${stage}`}
+            alt=""
+            decoding="async"
+            loading={index < 2 ? "eager" : "lazy"}
+            fetchPriority={index === 0 ? "high" : "auto"}
+          />
+        </picture>
+      ))}
       <div className="cinematic-atmosphere" />
       <div className="cinematic-depth-lines" />
       <div className="cinematic-grain" />

@@ -106,6 +106,21 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
   useEffect(() => {
     const updateJourneyProgress = (progress: number) => {
       root.current?.style.setProperty("--journey-progress", String(progress));
+      const experience = root.current?.closest<HTMLElement>(".experience");
+      experience?.style.setProperty("--journey-progress", String(progress));
+
+      const scaled = Math.min(4, Math.max(0, progress * 4));
+      const left = Math.min(4, Math.floor(scaled));
+      const blend = scaled - left;
+      const weights = [0, 0, 0, 0, 0];
+      weights[left] = 1 - blend;
+      if (left < 4) weights[left + 1] = blend;
+      weights.forEach((weight, index) => {
+        experience?.style.setProperty(
+          `--storyboard-${index + 1}`,
+          String(weight),
+        );
+      });
     };
 
     updateJourneyProgress(0);

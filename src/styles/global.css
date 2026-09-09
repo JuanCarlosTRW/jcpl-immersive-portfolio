@@ -73,11 +73,17 @@ em {
 .experience {
   min-height: 100svh;
   isolation: isolate;
+  --journey-progress: 0;
+  --storyboard-1: 1;
+  --storyboard-2: 0;
+  --storyboard-3: 0;
+  --storyboard-4: 0;
+  --storyboard-5: 0;
 }
 .scene-container {
   position: fixed;
   inset: 0;
-  z-index: -3;
+  z-index: -2;
   contain: strict;
 }
 .scene-container canvas {
@@ -88,7 +94,7 @@ em {
 .cinematic-world {
   position: fixed;
   inset: 0;
-  z-index: -2;
+  z-index: -3;
   overflow: hidden;
   background: #070707;
   pointer-events: none;
@@ -118,7 +124,7 @@ em {
   opacity: 0.96;
 }
 .cinematic-plate--journey,
-.cinematic-plate--projects {
+.cinematic-stage {
   opacity: 0;
 }
 .cinematic-plate--journey img {
@@ -129,17 +135,31 @@ em {
     )
     scale(1.035);
 }
-.cinematic-plate--projects img {
+.cinematic-plate--journey img {
+  filter: saturate(0.8) contrast(1.08) brightness(0.76);
+}
+.cinematic-stage {
+  inset: -1%;
+  transition: opacity 0.18s linear;
+}
+.cinematic-stage img {
+  object-position: center;
+  filter: saturate(0.76) contrast(1.1) brightness(0.8);
   transform: translate3d(
       var(--pointer-shift-x, 0px),
       var(--pointer-shift-y, 0px),
       0
     )
-    scale(1.035);
+    scale(1.018);
 }
-.cinematic-plate--journey img,
-.cinematic-plate--projects img {
-  filter: saturate(0.8) contrast(1.08) brightness(0.76);
+.cinematic-stage--2 img {
+  object-position: 51% center;
+}
+.cinematic-stage--3 img {
+  object-position: 49% center;
+}
+.cinematic-stage--4 img {
+  object-position: 53% center;
 }
 .cinematic-atmosphere,
 .cinematic-depth-lines,
@@ -202,22 +222,31 @@ em {
 .phase-world .cinematic-plate--journey {
   opacity: 0;
 }
-.phase-world .cinematic-plate--projects {
-  opacity: 0;
+.phase-world .cinematic-stage--1 {
+  opacity: var(--storyboard-1);
+}
+.phase-world .cinematic-stage--2 {
+  opacity: var(--storyboard-2);
+}
+.phase-world .cinematic-stage--3 {
+  opacity: var(--storyboard-3);
+}
+.phase-world .cinematic-stage--4 {
+  opacity: var(--storyboard-4);
+}
+.phase-world .cinematic-stage--5 {
+  opacity: var(--storyboard-5);
 }
 .phase-portal .scene-container,
 .phase-entering .scene-container {
   opacity: 0.2;
 }
 .phase-world .scene-container {
-  opacity: 1;
+  opacity: 0.84;
   transition: opacity 1.1s ease;
 }
 .phase-world:not(.renderer-fallback) .cinematic-world {
-  background: transparent;
-}
-.renderer-fallback.phase-world .cinematic-plate--journey {
-  opacity: 0.96;
+  background: #070707;
 }
 @keyframes entrance-depart {
   0% {
@@ -1502,7 +1531,7 @@ em {
     padding-bottom: 125px;
   }
   .projects h2 {
-    font-size: 18vw;
+    font-size: 15vw;
   }
   .projects .beat-content {
     width: 100%;
@@ -1615,8 +1644,9 @@ em {
   .cinematic-plate--journey img {
     object-position: 58% center;
   }
-  .cinematic-plate--projects img {
-    object-position: 51% center;
+  .cinematic-stage img {
+    object-position: center center;
+    filter: saturate(0.72) contrast(1.1) brightness(0.74);
   }
 }
 @media (max-height: 680px) and (min-width: 761px) {

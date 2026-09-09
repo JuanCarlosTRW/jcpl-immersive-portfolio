@@ -32,8 +32,16 @@ export function Ground() {
   const uniforms = useMemo(() => ({}), []);
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.04, -45]}>
-        <planeGeometry args={[260, 320]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.04, 8]}>
+        <planeGeometry args={[105, 50]} />
+        <shaderMaterial
+          vertexShader={floorVertex}
+          fragmentShader={floorFragment}
+          uniforms={uniforms}
+        />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.03, -104]}>
+        <planeGeometry args={[26, 175]} />
         <shaderMaterial
           vertexShader={floorVertex}
           fragmentShader={floorFragment}

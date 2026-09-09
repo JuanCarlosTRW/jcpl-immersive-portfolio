@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
-import { ACESFilmicToneMapping } from "three";
+import { ACESFilmicToneMapping, FogExp2, MathUtils } from "three";
 import { EXPERIENCE } from "../experience/config";
+import { runtime } from "../experience/runtime";
 import { useExperience } from "../stores/experience";
 import { CameraRig } from "./CameraRig";
 import { Portal } from "./Portal/Portal";
@@ -11,7 +12,6 @@ import { Ground } from "./environment/Ground";
 import { Architecture } from "./environment/Architecture";
 import { Lighting } from "./environment/Lighting";
 import { PerformanceGuard } from "./PerformanceGuard";
-import { Atmosphere } from "./environment/Atmosphere";
 
 function Ready({ onReady }: { onReady: () => void }) {
   const frames = useRef(0);
@@ -22,6 +22,21 @@ function Ready({ onReady }: { onReady: () => void }) {
     if (frames.current < 4) invalidate();
   });
   return null;
+}
+
+function CinematicFog() {
+  const fog = useRef<FogExp2>(null);
+  useFrame(() => {
+    if (!fog.current) return;
+    fog.current.density = MathUtils.lerp(0.0135, 0.0065, runtime.camera);
+  });
+  return (
+    <fogExp2
+      ref={fog}
+      attach="fog"
+      args={[EXPERIENCE.colors.fog, 0.0135]}
+    />
+  );
 }
 
 export default function World({ onReady }: { onReady: () => void }) {
@@ -45,20 +60,19 @@ export default function World({ onReady }: { onReady: () => void }) {
       }}
       gl={{
         antialias: true,
-        alpha: false,
+        alpha: true,
         powerPreference: "high-performance",
         toneMapping: ACESFilmicToneMapping,
-        toneMappingExposure: 1,
+        toneMappingExposure: 1.08,
       }}
       fallback={null}
       onCreated={({ gl }) => {
         gl.info.autoReset = false;
+        gl.setClearAlpha(0);
       }}
       aria-label="A monumental obsidian route climbing through stairs, bridges and architectural stations"
     >
-      <color attach="background" args={[EXPERIENCE.colors.void]} />
-      <fogExp2 attach="fog" args={[EXPERIENCE.colors.fog, 0.0085]} />
-      <Atmosphere />
+      <CinematicFog />
       <Lighting />
       <Portal />
       <Architecture />
