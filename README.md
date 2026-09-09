@@ -68,7 +68,7 @@ The threshold is an architectural arch with four recessed layers, asymmetric but
 
 The first environment intentionally stops at the Projects destination. Custom assets, complete case studies and sound belong to later milestones. No autoplay audio or inactive sound control is included. Future audio should attach to the existing entry event and phase changes, creating its AudioContext only after explicit user activation.
 
-`public/assets/portal-reference.webp` is an optimized copy of the concept frame supplied by the owner. It is used **only in the no-WebGL fallback**. It does not replace the procedural scene on WebGL-capable devices. The fallback remains a static image throughout the semantic journey.
+The supplied concept frame informs scale, materials and light. It is not distributed with the project. The no-WebGL fallback uses a restrained CSS atmosphere and the same semantic content.
 
 ## Performance
 
@@ -133,6 +133,6 @@ Next: validate and tune the actual WebGL composition on a GPU-enabled browser, t
 
 ## Credits
 
-- Concept frame: supplied by Juan-Carlos for this project.
+- Art direction reference: concept frame supplied by Juan-Carlos; not redistributed.
 - Manrope: SIL Open Font License; included at `public/fonts/OFL.txt`.
 - Three.js, React Three Fiber, Drei, React, Vite, Zustand, GSAP and postprocessing: their respective upstream licenses apply.

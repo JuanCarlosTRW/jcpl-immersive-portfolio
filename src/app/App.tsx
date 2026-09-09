@@ -1,0 +1,239 @@
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import gsap from "gsap";
+import { useExperience } from "../stores/experience";
+import { usePreferences } from "../hooks/usePreferences";
+import { EXPERIENCE } from "../experience/config";
+import { resetRuntime, runtime } from "../experience/runtime";
+import { Journey } from "../experience/Journey";
+import { Frame } from "../components/ui/Frame";
+import { Arrow } from "../components/ui/Arrow";
+import { Index } from "../components/ui/Index";
+import { ProjectArchive } from "../components/ui/ProjectArchive";
+import { SceneBoundary } from "./SceneBoundary";
+import { supportsWebGL2 } from "../utils/webgl";
+
+const World = lazy(() => import("../scene/World"));
+
+function Portfolio() {
+  usePreferences();
+  const phase = useExperience((s) => s.phase);
+  const reduced = useExperience((s) => s.reducedMotion);
+  const failed = useExperience((s) => s.rendererFailed);
+  const [graphicsChecked, setGraphicsChecked] = useState(false);
+  const start = useRef(performance.now());
+  const readyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const jumpToProjects = useRef(false);
+  const ready = useCallback(() => {
+    readyTimer.current = setTimeout(
+      () => {
+        if (useExperience.getState().phase === "initializing")
+          useExperience.getState().setPhase("portal");
+      },
+      Math.max(
+        0,
+        EXPERIENCE.timing.initialization - (performance.now() - start.current),
+      ),
+    );
+  }, []);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (useExperience.getState().phase === "initializing")
+        useExperience.getState().failRenderer();
+    }, EXPERIENCE.timing.loadTimeout);
+    const forceFailure =
+      import.meta.env.DEV &&
+      new URLSearchParams(location.search).has("renderer-failure");
+    if (forceFailure || !supportsWebGL2())
+      useExperience.getState().failRenderer();
+    setGraphicsChecked(true);
+    return () => {
+      clearTimeout(timeout);
+      if (readyTimer.current) clearTimeout(readyTimer.current);
+    };
+  }, []);
+  useEffect(() => {
+    document.body.style.overflow = phase === "world" ? "" : "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [phase]);
+  useEffect(() => {
+    if (phase !== "entering") return;
+    if (reduced || failed) {
+      runtime.entry = 1;
+      useExperience.getState().setPhase("world");
+      return;
+    }
+    const tween = gsap.to(runtime, {
+      entry: 1,
+      duration: EXPERIENCE.timing.entry,
+      ease: "power2.inOut",
+      onComplete: () => useExperience.getState().setPhase("world"),
+    });
+    return () => {
+      tween.kill();
+    };
+  }, [phase, reduced, failed]);
+  const enter = () => {
+    if (phase === "portal") useExperience.getState().setPhase("entering");
+  };
+  const restart = () => {
+    resetRuntime();
+    jumpToProjects.current = false;
+    window.scrollTo({ top: 0, behavior: "instant" });
+    useExperience.getState().setPhase("portal");
+    requestAnimationFrame(() => document.getElementById("enter")?.focus());
+  };
+  const visitProjects = () => {
+    if (phase === "world")
+      document
+        .getElementById("projects")
+        ?.scrollIntoView({ behavior: reduced ? "instant" : "smooth" });
+    else {
+      jumpToProjects.current = true;
+      enter();
+    }
+  };
+  return (
+    <div
+      className={`experience phase-${phase} ${reduced ? "reduced-motion" : ""} ${failed ? "renderer-fallback" : ""}`}
+    >
+      <a
+        className="skip-link"
+        href="#projects"
+        onClick={(event) => {
+          event.preventDefault();
+          jumpToProjects.current = true;
+          runtime.entry = 1;
+          useExperience.getState().setPhase("world");
+        }}
+      >
+        Skip to projects
+      </a>
+      <div className="scene-container" aria-hidden="true">
+        {graphicsChecked && !failed && (
+          <SceneBoundary>
+            <Suspense fallback={null}>
+              <World onReady={ready} />
+            </Suspense>
+          </SceneBoundary>
+        )}
+      </div>
+      <div className="cinema-shade" aria-hidden="true" />
+      <Frame restart={restart} />
+      {phase !== "world" && (
+        <main className="threshold" inert={phase !== "portal"}>
+          <div className="threshold-copy">
+            <p className="eyebrow">
+              <span className="chapter-dash" /> AN INDEPENDENT UNIVERSE
+            </p>
+            <h1 className="threshold-title">
+              THE
+              <br />
+              <span>ASCENT</span>
+            </h1>
+            <div className="threshold-bottom">
+              <p>
+                Nothing starts extraordinary.
+                <br />
+                <span>It becomes.</span>
+              </p>
+              <button
+                className="enter-button"
+                id="enter"
+                onClick={enter}
+                onPointerEnter={() => {
+                  runtime.hover = 1;
+                }}
+                onPointerLeave={() => {
+                  runtime.hover = 0;
+                }}
+                onFocus={() => {
+                  runtime.hover = 1;
+                }}
+                onBlur={() => {
+                  runtime.hover = 0;
+                }}
+              >
+                ENTER{" "}
+                <span className="button-circle">
+                  <Arrow />
+                </span>
+              </button>
+            </div>
+          </div>
+          <div className="portal-coordinate" aria-hidden="true">
+            <span className="coordinate-cross">+</span>
+            <span>
+              00 — THE THRESHOLD
+              <br />
+              <small>THE BEGINNING OF EVERYTHING</small>
+            </span>
+          </div>
+          {failed && (
+            <p className="fallback-note" role="status">
+              The 3D experience is unavailable on this device. Enter to explore
+              the portfolio in a lighter view.
+            </p>
+          )}
+        </main>
+      )}
+      {phase === "world" && <Journey jumpToProjects={jumpToProjects.current} />}
+      {phase === "initializing" && (
+        <div className="initialization" role="status">
+          <div className="init-mark" aria-hidden="true">
+            /
+          </div>
+          <span>INITIALIZING</span>
+          <div className="init-line">
+            <i />
+          </div>
+          <small>THE ASCENT</small>
+        </div>
+      )}
+      {phase === "entering" && (
+        <div className="entry-caption" role="status">
+          LEAVE THE FAMILIAR BEHIND.
+        </div>
+      )}
+      <Index visitProjects={visitProjects} />
+      <ProjectArchive />
+      {import.meta.env.DEV &&
+        new URLSearchParams(location.search).has("debug") && (
+          <output id="performance-readout" className="performance-readout">
+            {failed
+              ? "WebGL unavailable · semantic fallback"
+              : "Measuring rendering performance…"}
+          </output>
+        )}
+    </div>
+  );
+}
+
+export function App() {
+  // Viewport harness stays out of production. The iframe gives CSS and Canvas a real narrow viewport.
+  if (import.meta.env.DEV && new URLSearchParams(location.search).has("qa")) {
+    const width = Number(new URLSearchParams(location.search).get("qa")) || 390;
+    return (
+      <div className="qa-harness">
+        <p>
+          Responsive QA · {width}px <a href="/?qa=390">Mobile</a>{" "}
+          <a href="/?qa=1024">Laptop</a> <a href="/">Desktop</a>
+        </p>
+        <iframe
+          title="Portfolio viewport test"
+          src="/?debug"
+          style={{ width, height: width < 760 ? 844 : 768 }}
+        />
+      </div>
+    );
+  }
+  return <Portfolio />;
+}
