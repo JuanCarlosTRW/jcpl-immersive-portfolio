@@ -95,6 +95,14 @@ em {
 .review-first-flight .story-beat .beat-content {
   visibility: hidden !important;
 }
+.review-first-flight.review-isolated .cinematic-world,
+.review-first-flight.review-isolated .cinema-shade {
+  display: none !important;
+}
+.review-first-flight.review-isolated .scene-container {
+  opacity: 1 !important;
+  background: #07090a;
+}
 html[data-review-mode="first-flight"] {
   scrollbar-width: none;
 }

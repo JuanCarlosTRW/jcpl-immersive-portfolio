@@ -17,13 +17,20 @@ export interface ReviewSettings {
   bloom: boolean;
   shadows: ReviewSwitch;
   traveler: ReviewSwitch;
+  backdrop: boolean;
+  record: boolean;
 }
 
 const parseSwitch = (value: string | null): ReviewSwitch =>
   value === "on" || value === "off" ? value : "legacy";
 
-export function getReviewSettings(): ReviewSettings {
-  const params = new URLSearchParams(window.location.search);
+export function getReviewSettings(
+  search = window.location.search,
+): ReviewSettings {
+  const params = new URLSearchParams(search);
+  const requestedScroll = params.get("scroll");
+  const parsedScroll =
+    requestedScroll === null ? Number.NaN : Number(requestedScroll);
   const enabled = params.get("review") === "first-flight";
   const requestedShot = params.get("shot");
   const shot: FirstFlightShot =
@@ -38,12 +45,14 @@ export function getReviewSettings(): ReviewSettings {
     enabled,
     shot,
     rail: still ? REVIEW_RAIL[shot] : null,
-    scroll: Number.isFinite(Number(params.get("scroll")))
-      ? Math.min(1, Math.max(0, Number(params.get("scroll"))))
+    scroll: Number.isFinite(parsedScroll)
+      ? Math.min(1, Math.max(0, parsedScroll))
       : 0.23,
     still,
     bloom: params.get("bloom") === "on",
     shadows: parseSwitch(params.get("shadows")),
     traveler: parseSwitch(params.get("traveler")),
+    backdrop: params.get("backdrop") !== "off",
+    record: params.get("record") === "on",
   };
 }

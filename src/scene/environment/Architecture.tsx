@@ -9,6 +9,8 @@ import {
 import {
   DodecahedronGeometry,
   ExtrudeGeometry,
+  BufferGeometry,
+  Float32BufferAttribute,
   Group,
   Material,
   MathUtils,
@@ -18,6 +20,10 @@ import {
 } from "three";
 import { runtime } from "../../experience/runtime";
 import { useStoneMaterial } from "./StoneMaterial";
+import {
+  type FirstFlightMaterials,
+  useFirstFlightMaterials,
+} from "./FirstFlightMaterials";
 
 type Vector3Tuple = [number, number, number];
 
@@ -110,6 +116,151 @@ function StairFlight({
   );
 }
 
+function DetailedFirstFlight({
+  position,
+  materials,
+}: {
+  position: Vector3Tuple;
+  materials: FirstFlightMaterials;
+}) {
+  const steps = 12;
+  const width = 7.6;
+  const depth = 1.75;
+  const rise = 0.38;
+  const treads = useMemo(() => Array.from({ length: steps }, (_, index) => index), []);
+
+  return (
+    <group position={position} rotation={[0, -0.012, 0]}>
+      <StairFlight
+        position={[0, 0, 0]}
+        steps={steps}
+        width={width - 0.24}
+        depth={depth}
+        rise={rise}
+        material={materials.riser}
+      />
+      {treads.map((index) => (
+        <BeveledMass
+          key={index}
+          position={[0, (index + 1) * rise + 0.045, -index * depth - depth / 2]}
+          size={[width, 0.09, depth + 0.05]}
+          material={materials.surface}
+          radius={0.032}
+        />
+      ))}
+      <StairFlight
+        position={[-width / 2 + 0.045, 0.096, 0]}
+        steps={steps}
+        width={0.09}
+        depth={depth}
+        rise={rise}
+        material={materials.insert}
+      />
+      <StairFlight
+        position={[width / 2 - 0.045, 0.096, 0]}
+        steps={steps}
+        width={0.09}
+        depth={depth}
+        rise={rise}
+        material={materials.insert}
+      />
+    </group>
+  );
+}
+
+function LandingSurface({ material }: { material: Material }) {
+  const slabs = [
+    [-5.5, -71.95, 5.38, 5.82],
+    [0, -71.95, 5.38, 5.82],
+    [5.5, -71.95, 5.38, 5.82],
+    [-5.5, -77.91, 5.38, 5.82],
+    [0, -77.91, 5.38, 5.82],
+    [5.5, -77.91, 5.38, 5.82],
+    [-5.5, -83.87, 5.38, 5.82],
+    [0, -83.87, 5.38, 5.82],
+    [5.5, -83.87, 5.38, 5.82],
+  ] as const;
+
+  return (
+    <group>
+      {slabs.map(([x, z, width, depth]) => (
+        <BeveledMass
+          key={`${x}-${z}`}
+          position={[x, 4.605, z]}
+          size={[width, 0.09, depth]}
+          material={material}
+          radius={0.028}
+        />
+      ))}
+    </group>
+  );
+}
+
+function AngularRock({
+  position,
+  scale,
+  rotation,
+  material,
+}: {
+  position: Vector3Tuple;
+  scale: Vector3Tuple;
+  rotation: Vector3Tuple;
+  material: Material;
+}) {
+  const geometry = useMemo(() => {
+    const indexed = new BufferGeometry();
+    indexed.setAttribute(
+      "position",
+      new Float32BufferAttribute(
+        [
+          -0.82, -0.7, -0.62,
+          0.72, -0.7, -0.68,
+          0.94, -0.7, 0.38,
+          -0.58, -0.7, 0.78,
+          -0.52, 0.18, -0.42,
+          0.46, 0.42, -0.5,
+          0.58, 0.08, 0.32,
+          -0.42, 0.34, 0.5,
+          -0.18, 0.92, -0.08,
+        ],
+        3,
+      ),
+    );
+    indexed.setIndex([
+      0, 1, 4, 1, 5, 4, 1, 2, 5, 2, 6, 5, 2, 3, 6, 3, 7, 6,
+      3, 0, 7, 0, 4, 7, 4, 5, 8, 5, 6, 8, 6, 7, 8, 7, 4, 8,
+      0, 3, 2, 0, 2, 1,
+    ]);
+    const faceted = indexed.toNonIndexed();
+    indexed.dispose();
+    faceted.computeVertexNormals();
+    const positions = faceted.getAttribute("position");
+    const uvs: number[] = [];
+    for (let index = 0; index < positions.count; index += 1) {
+      uvs.push(
+        MathUtils.clamp((positions.getX(index) + 0.94) / 1.88, 0, 1),
+        MathUtils.clamp((positions.getY(index) + 0.7) / 1.62, 0, 1),
+      );
+    }
+    faceted.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    return faceted;
+  }, []);
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  return (
+    <mesh
+      position={position}
+      scale={scale}
+      rotation={rotation}
+      geometry={geometry}
+      material={material}
+      castShadow
+      receiveShadow
+    />
+  );
+}
+
 function RevealModule({
   children,
   at,
@@ -155,9 +306,10 @@ function Rock({
 }
 
 export function Architecture() {
+  const firstFlight = useFirstFlightMaterials();
   const stone = useStoneMaterial("#292c2f", 0.32);
   const basalt = useStoneMaterial("#151719", 0.12);
-  const wetStone = useMemo(
+  const wetStoneLegacy = useMemo(
     () =>
       new MeshStandardMaterial({
         color: "#1a1d20",
@@ -191,11 +343,11 @@ export function Architecture() {
     () => () => {
       stone.dispose();
       basalt.dispose();
-      wetStone.dispose();
+      wetStoneLegacy.dispose();
       darkMetal.dispose();
       arrivalGlow.dispose();
       rockGeometry.dispose();
-    }, [arrivalGlow, basalt, darkMetal, rockGeometry, stone, wetStone],
+    }, [arrivalGlow, basalt, darkMetal, rockGeometry, stone, wetStoneLegacy],
   );
 
   return (
@@ -205,7 +357,7 @@ export function Architecture() {
         <BeveledMass
           position={[0, 0.12, -32]}
           size={[9.6, 0.44, 30]}
-          material={wetStone}
+          material={wetStoneLegacy}
           radius={0.07}
         />
         <BeveledMass
@@ -248,15 +400,13 @@ export function Architecture() {
 
       {/* MODULE 02 — FIRST ASCENT */}
       <RevealModule at={0.12}>
-        <StairFlight
-          position={[0, 0, -48]}
-          steps={12}
-          width={7.6}
-          depth={1.67}
-          rise={0.35}
-          yaw={-0.012}
-          material={wetStone}
+        <BeveledMass
+          position={[0, 0.315, -47.5]}
+          size={[7.75, 0.09, 1]}
+          material={firstFlight.surface}
+          radius={0.026}
         />
+        <DetailedFirstFlight position={[0, 0, -48]} materials={firstFlight} />
         <BeveledMass
           position={[-6.7, 2.6, -56]}
           size={[2.05, 5.2, 8.4]}
@@ -288,18 +438,31 @@ export function Architecture() {
         />
       </RevealModule>
       {/* MODULE 03 — THE MONUMENTAL PLATFORM */}
-      <RevealModule at={0.4}>
+      <RevealModule at={0.12}>
         <BeveledMass
-          position={[0.4, 4.28, -78.5]}
+          position={[0, 4.28, -78]}
           size={[16.8, 0.58, 19]}
-          material={wetStone}
+          material={firstFlight.riser}
           radius={0.08}
+        />
+        <LandingSurface material={firstFlight.surface} />
+        <BeveledMass
+          position={[-8.22, 4.62, -78.5]}
+          size={[0.08, 0.11, 18.7]}
+          material={firstFlight.insert}
+          radius={0.018}
+        />
+        <BeveledMass
+          position={[8.22, 4.62, -78.5]}
+          size={[0.08, 0.11, 18.7]}
+          material={firstFlight.insert}
+          radius={0.018}
         />
         <BeveledMass
           position={[5.5, 5.05, -80]}
           size={[11, 1.45, 8.6]}
           rotation={[0, -0.025, 0]}
-          material={stone}
+          material={firstFlight.riser}
         />
         <BeveledMass
           position={[-6.5, 13.1, -80]}
@@ -318,12 +481,11 @@ export function Architecture() {
           size={[2.8, 13.5, 4.2]}
           material={basalt}
         />
-        <Rock
+        <AngularRock
           position={[5.2, 6.2, -73]}
           scale={[2.6, 4.6, 2.3]}
           rotation={[0.28, -0.5, 0.16]}
-          geometry={rockGeometry}
-          material={basalt}
+          material={firstFlight.rock}
         />
       </RevealModule>
       {/* MODULE 04 — UPPER ASCENT */}
@@ -335,7 +497,7 @@ export function Architecture() {
           depth={1.46}
           rise={0.332}
           yaw={0.018}
-          material={wetStone}
+          material={wetStoneLegacy}
         />
         <BeveledMass
           position={[-4.85, 10.1, -98]}
@@ -352,7 +514,7 @@ export function Architecture() {
         <BeveledMass
           position={[0, 8.94, -119.5]}
           size={[7.5, 0.5, 20]}
-          material={wetStone}
+          material={wetStoneLegacy}
           radius={0.07}
         />
         <BeveledMass
@@ -372,7 +534,7 @@ export function Architecture() {
           depth={1.5}
           rise={0.422}
           yaw={-0.016}
-          material={wetStone}
+          material={wetStoneLegacy}
         />
         <Rock
           position={[-8.7, 12.3, -133]}
@@ -394,7 +556,7 @@ export function Architecture() {
         <BeveledMass
           position={[0, 14.78, -160.5]}
           size={[19.5, 0.65, 22]}
-          material={wetStone}
+          material={wetStoneLegacy}
           radius={0.09}
         />
         <BeveledMass

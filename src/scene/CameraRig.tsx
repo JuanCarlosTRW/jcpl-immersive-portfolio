@@ -27,7 +27,9 @@ export function CameraRig() {
     [],
   );
   const paths = useMemo(() => createCameraPaths(mobile), [mobile]);
-  const renderedProgress = useRef(review.rail ?? 0);
+  const renderedProgress = useRef(
+    review.rail ?? mapScrollToRailProgress(review.scroll),
+  );
   const aimReady = useRef(false);
   useFrame((state, delta) => {
     const { phase, reducedMotion } = useExperience.getState();
@@ -44,6 +46,13 @@ export function CameraRig() {
       runtime.camera = renderedProgress.current;
       paths.world.getPointAt(renderedProgress.current, vectors.point);
       paths.worldAim.getPointAt(renderedProgress.current, vectors.aim);
+      if (review.enabled && review.shot === "material") {
+        vectors.point.set(-2.8, 1.55, -44.8);
+        vectors.aim.set(0.8, 1.65, -54.2);
+      } else if (review.enabled && review.shot === "contact") {
+        vectors.point.set(-3.4, 5.45, -65.1);
+        vectors.aim.set(2.1, 5.35, -75.2);
+      }
       if (mobile) {
         vectors.point.z += renderedProgress.current * config.mobileProjectPullback;
         vectors.point.x += renderedProgress.current * config.mobileProjectOffset;

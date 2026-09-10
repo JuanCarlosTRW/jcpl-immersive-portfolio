@@ -123,7 +123,7 @@ function Portfolio() {
   };
   return (
     <div
-      className={`experience phase-${phase} ${reduced ? "reduced-motion" : ""} ${failed ? "renderer-fallback" : ""} ${review.enabled ? `review-first-flight review-${review.still ? "still" : "motion"}` : ""}`}
+      className={`experience phase-${phase} ${reduced ? "reduced-motion" : ""} ${failed ? "renderer-fallback" : ""} ${review.enabled ? `review-first-flight review-${review.still ? "still" : "motion"} ${review.backdrop ? "" : "review-isolated"}` : ""}`}
       data-review-shot={review.enabled ? review.shot : undefined}
     >
       <a
@@ -210,7 +210,7 @@ function Portfolio() {
       {phase === "world" && (
         <Journey
           jumpToProjects={jumpToProjects.current}
-          reviewProgress={review.enabled && review.still ? review.scroll : null}
+          reviewProgress={review.enabled ? review.scroll : null}
         />
       )}
       {phase === "initializing" && (
