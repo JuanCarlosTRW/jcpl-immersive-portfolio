@@ -12,13 +12,19 @@ import { Ground } from "./environment/Ground";
 import { Architecture } from "./environment/Architecture";
 import { Lighting } from "./environment/Lighting";
 import { PerformanceGuard } from "./PerformanceGuard";
+import { getReviewSettings } from "../experience/review";
 
 function Ready({ onReady }: { onReady: () => void }) {
+  const review = getReviewSettings();
   const frames = useRef(0);
   const invalidate = useThree((s) => s.invalidate);
   useFrame(() => {
     frames.current++;
-    if (frames.current === 3) onReady();
+    if (frames.current === 3) {
+      onReady();
+      if (review.enabled)
+        document.documentElement.dataset.reviewReady = "true";
+    }
     if (frames.current < 4) invalidate();
   });
   return null;
@@ -40,6 +46,7 @@ function CinematicFog() {
 }
 
 export default function World({ onReady }: { onReady: () => void }) {
+  const review = getReviewSettings();
   const quality = useExperience((s) => s.quality);
   const modalOpen = useExperience((s) => s.indexOpen || s.projectOpen);
   const [visible, setVisible] = useState(!document.hidden);
@@ -79,8 +86,8 @@ export default function World({ onReady }: { onReady: () => void }) {
       <Ground />
       <Dust />
       <CameraRig />
-      <PerformanceGuard />
-      {EXPERIENCE.quality[quality].bloom && (
+      {!review.enabled && <PerformanceGuard />}
+      {(review.enabled ? review.bloom : EXPERIENCE.quality[quality].bloom) && (
         <EffectComposer multisampling={0}>
           <Bloom
             luminanceThreshold={1.2}

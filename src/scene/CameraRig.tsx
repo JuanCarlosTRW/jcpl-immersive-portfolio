@@ -8,10 +8,12 @@ import {
   createCameraPaths,
   mapScrollToRailProgress,
 } from "../experience/cameraPaths";
+import { getReviewSettings } from "../experience/review";
 
 const { camera: config } = EXPERIENCE;
 
 export function CameraRig() {
+  const review = getReviewSettings();
   const { camera, size, invalidate } = useThree();
   const mobile = size.width < 760;
   const vectors = useMemo(
@@ -25,18 +27,20 @@ export function CameraRig() {
     [],
   );
   const paths = useMemo(() => createCameraPaths(mobile), [mobile]);
-  const renderedProgress = useRef(0);
+  const renderedProgress = useRef(review.rail ?? 0);
   const aimReady = useRef(false);
   useFrame((state, delta) => {
     const { phase, reducedMotion } = useExperience.getState();
     if (phase === "world") {
-      const targetProgress = mapScrollToRailProgress(runtime.scroll);
-      renderedProgress.current = MathUtils.damp(
-        renderedProgress.current,
-        targetProgress,
-        reducedMotion ? 12 : 5.8,
-        delta,
-      );
+      const targetProgress = review.rail ?? mapScrollToRailProgress(runtime.scroll);
+      renderedProgress.current =
+        review.rail ??
+        MathUtils.damp(
+          renderedProgress.current,
+          targetProgress,
+          reducedMotion ? 12 : 5.8,
+          delta,
+        );
       runtime.camera = renderedProgress.current;
       paths.world.getPointAt(renderedProgress.current, vectors.point);
       paths.worldAim.getPointAt(renderedProgress.current, vectors.aim);
@@ -52,7 +56,7 @@ export function CameraRig() {
       runtime.camera = 0;
     }
     const pointerAmount =
-      !reducedMotion && !mobile
+      !review.enabled && !reducedMotion && !mobile
         ? phase === "portal"
           ? config.pointerTravel
           : phase === "world"
@@ -71,7 +75,7 @@ export function CameraRig() {
       2.5,
       delta,
     );
-    const worldMotion = phase === "world" && !reducedMotion;
+    const worldMotion = phase === "world" && !reducedMotion && !review.enabled;
     const elapsed = state.clock.elapsedTime;
     vectors.drift.set(
       worldMotion ? Math.sin(elapsed * 0.33) * 0.018 : 0,
@@ -100,6 +104,14 @@ export function CameraRig() {
     if (Math.abs(lens.fov - fov) > 0.01) {
       lens.fov = fov;
       lens.updateProjectionMatrix();
+    }
+    if (review.enabled) {
+      document.documentElement.dataset.reviewCamera = JSON.stringify({
+        rail: Number(runtime.camera.toFixed(6)),
+        position: camera.position.toArray().map((value) => Number(value.toFixed(6))),
+        aim: vectors.smoothAim.toArray().map((value) => Number(value.toFixed(6))),
+        fov: Number(lens.fov.toFixed(6)),
+      });
     }
     if (phase === "entering") invalidate();
   });

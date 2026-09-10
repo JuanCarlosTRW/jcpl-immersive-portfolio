@@ -19,10 +19,12 @@ import { ProjectArchive } from "../components/ui/ProjectArchive";
 import { CinematicBackdrop } from "../components/visual/CinematicBackdrop";
 import { SceneBoundary } from "./SceneBoundary";
 import { supportsWebGL2 } from "../utils/webgl";
+import { getReviewSettings } from "../experience/review";
 
 const World = lazy(() => import("../scene/World"));
 
 function Portfolio() {
+  const review = getReviewSettings();
   usePreferences();
   const phase = useExperience((s) => s.phase);
   const reduced = useExperience((s) => s.reducedMotion);
@@ -59,6 +61,23 @@ function Portfolio() {
       if (readyTimer.current) clearTimeout(readyTimer.current);
     };
   }, []);
+  useEffect(() => {
+    if (!review.enabled) return;
+    runtime.entry = 1;
+    runtime.scroll = review.scroll;
+    const state = useExperience.getState();
+    state.setQuality("high");
+    state.setReducedMotion(review.still);
+    state.setPhase("world");
+    document.documentElement.dataset.reviewMode = "first-flight";
+    document.documentElement.dataset.reviewShot = review.shot;
+    return () => {
+      delete document.documentElement.dataset.reviewMode;
+      delete document.documentElement.dataset.reviewShot;
+      delete document.documentElement.dataset.reviewReady;
+      delete document.documentElement.dataset.reviewCamera;
+    };
+  }, [review.enabled, review.scroll, review.shot, review.still]);
   useEffect(() => {
     document.body.style.overflow = phase === "world" ? "" : "hidden";
     return () => {
@@ -104,7 +123,8 @@ function Portfolio() {
   };
   return (
     <div
-      className={`experience phase-${phase} ${reduced ? "reduced-motion" : ""} ${failed ? "renderer-fallback" : ""}`}
+      className={`experience phase-${phase} ${reduced ? "reduced-motion" : ""} ${failed ? "renderer-fallback" : ""} ${review.enabled ? `review-first-flight review-${review.still ? "still" : "motion"}` : ""}`}
+      data-review-shot={review.enabled ? review.shot : undefined}
     >
       <a
         className="skip-link"
@@ -187,7 +207,12 @@ function Portfolio() {
           )}
         </main>
       )}
-      {phase === "world" && <Journey jumpToProjects={jumpToProjects.current} />}
+      {phase === "world" && (
+        <Journey
+          jumpToProjects={jumpToProjects.current}
+          reviewProgress={review.enabled && review.still ? review.scroll : null}
+        />
+      )}
       {phase === "initializing" && (
         <div className="initialization" role="status">
           <div className="init-mark" aria-hidden="true">

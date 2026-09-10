@@ -6,3 +6,4 @@ dist/
 .DS_Store
 .openai/*local*
 .sites*
+artifacts/qa/

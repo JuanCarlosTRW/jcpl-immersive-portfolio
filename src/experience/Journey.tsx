@@ -98,7 +98,13 @@ const CHAPTER_LABELS = [
   "CLIENTGROWTH",
 ];
 
-export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
+export function Journey({
+  jumpToProjects,
+  reviewProgress = null,
+}: {
+  jumpToProjects: boolean;
+  reviewProgress?: number | null;
+}) {
   const root = useRef<HTMLElement>(null);
   const [chapter, setChapter] = useState(0);
   const reduced = useExperience((s) => s.reducedMotion);
@@ -124,6 +130,11 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
     };
 
     updateJourneyProgress(0);
+    if (reviewProgress !== null) {
+      runtime.scroll = reviewProgress;
+      updateJourneyProgress(reviewProgress);
+      return;
+    }
     const context = gsap.context(() => {
       gsap.to(runtime, {
         scroll: 1,
@@ -204,7 +215,7 @@ export function Journey({ jumpToProjects }: { jumpToProjects: boolean }) {
       context.revert();
       cancelAnimationFrame(refresh);
     };
-  }, [reduced, jumpToProjects]);
+  }, [reduced, jumpToProjects, reviewProgress]);
 
   return (
     <main ref={root} className="journey" id="journey">

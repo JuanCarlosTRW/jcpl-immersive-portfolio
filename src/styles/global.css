@@ -80,6 +80,33 @@ em {
   --storyboard-4: 0;
   --storyboard-5: 0;
 }
+.review-first-flight .frame-header,
+.review-first-flight .frame-footer,
+.review-first-flight .journey-indicator,
+.review-first-flight .case-route,
+.review-first-flight .chapter-readout,
+.review-first-flight .modal,
+.review-first-flight .initialization,
+.review-first-flight .entry-caption,
+.review-first-flight .fallback-note,
+.review-first-flight .skip-link {
+  display: none !important;
+}
+.review-first-flight .story-beat .beat-content {
+  visibility: hidden !important;
+}
+html[data-review-mode="first-flight"] {
+  scrollbar-width: none;
+}
+html[data-review-mode="first-flight"]::-webkit-scrollbar {
+  display: none;
+}
+.review-still *,
+.review-still *::before,
+.review-still *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
 .scene-container {
   position: fixed;
   inset: 0;

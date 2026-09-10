@@ -3,8 +3,10 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { DirectionalLight, MathUtils, PointLight } from "three";
 import { runtime } from "../../experience/runtime";
+import { getReviewSettings } from "../../experience/review";
 
 export function Lighting() {
+  const review = getReviewSettings();
   const key = useRef<DirectionalLight>(null);
   const traveler = useRef<PointLight>(null);
   const arrival = useRef<PointLight>(null);
@@ -23,6 +25,8 @@ export function Lighting() {
         MathUtils.smoothstep(runtime.camera, 0.82, 1) * 54;
     }
     if (traveler.current) {
+      traveler.current.intensity =
+        review.enabled && review.traveler === "off" ? 0 : 65;
       traveler.current.position.set(
         camera.position.x - 3.8,
         camera.position.y + 4.5,
